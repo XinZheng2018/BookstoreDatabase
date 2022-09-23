@@ -1,0 +1,824 @@
+
+
+
+set echo on; 
+SPOOL ; 
+
+set pagesize 1500; 
+set linesize 1500; 
+
+DROP TABLE SKILL CASCADE CONSTRAINTS;
+DROP TABLE TRAINING CASCADE CONSTRAINTS; 
+DROP TABLE DEPARTMENT CASCADE CONSTRAINTS; 
+DROP TABLE EMPLOYEE CASCADE CONSTRAINTS; 
+DROP TABLE CLIENT CASCADE CONSTRAINTS;  
+DROP TABLE PROJECT CASCADE CONSTRAINTS; 
+DROP TABLE ASSIGNMENT CASCADE CONSTRAINTS; 
+
+
+
+create table SKILL (
+    Code number not null constraint skill_pk primary key,
+    Name varchar2(50) not null unique,
+    Category varchar2(50) not null
+);
+
+
+INSERT INTO SKILL 
+VALUES (1, 'Database', 'Computer'); 
+
+INSERT INTO SKILL 
+VALUES (2, 'Operating System', 'Computer');
+
+INSERT INTO SKILL 
+VALUES (3, 'Scrum Management', 'Product Management');
+
+INSERT INTO SKILL 
+VALUES (4, 'Project Management Tools', 'Product Management');
+
+INSERT INTO SKILL 
+VALUES (5, 'Communication', 'Product Management');
+
+INSERT INTO SKILL
+VALUES (6, 'Java', 'Computer'); 
+
+INSERT INTO SKILL
+VALUES (7, 'Python', 'Computer'); 
+
+INSERT INTO SKILL
+VALUES (8, 'C++', 'Computer'); 
+
+INSERT INTO SKILL
+VALUES (9, 'Orgnizational Behavior', 'Management'); 
+
+INSERT INTO SKILL
+VALUES (10, 'Corporate Accounting', 'Accounting'); 
+
+
+/*
+Contraint is added: length of phone number must be 10
+*/
+
+create table DEPARTMENT (
+    Dept_Code number not null constraint department_pk primary key,
+    Name varchar2(20) not null unique,
+    Location varchar2(50) not null,
+    Phone number not null unique,
+    Manager_ID number not null unique, 
+    CONSTRAINT phone_ck CHECK (LENGTH(Phone) = 10)
+);
+
+
+create table EMPLOYEE (
+    Emp_Num number not null constraint employee_pk primary key,
+    Lname varchar2(20) not null,
+    Fname varchar2(20) not null,
+    DOB date not null,
+    Hire_Date date default sysdate not null,
+    Super_ID number,
+    Dept_Code number not null
+	CONSTRAINT employee_department_FK REFERENCES DEPARTMENT (dept_code),
+    CONSTRAINT employee_supervisor_FK 
+	       FOREIGN KEY (super_id)
+		References employee(emp_num)
+	on delete set null, 
+    CONSTRAINT hiredate_ck CHECK(hire_date > dob)
+);
+
+
+/*
+Alter table department to add manager foreign key constraint. 
+*/
+ALTER TABLE DEPARTMENT
+ADD CONSTRAINT department_manager_FK 
+	FOREIGN KEY (manager_id)
+	References employee(emp_num)
+	on delete set null
+	deferrable initially deferred; 
+
+/*
+*******
+insert into department
+************
+*/
+INSERT INTO DEPARTMENT
+VALUES (1, 'ADMINISTRATIVE', '5F', 4156679844, 1);
+
+INSERT INTO DEPARTMENT
+VALUES (2, 'BUSINESS DEVELOPMENT', '3F', 4156679433, 3);
+
+INSERT INTO DEPARTMENT 
+VALUES (3, 'ACCOUNTING', '2F', 4157261874, 6); 
+
+INSERT INTO DEPARTMENT
+VALUES (4,'ENGINEERING', '4F', 4154782947, 8); 
+
+INSERT INTO DEPARTMENT
+VALUES (5, 'CEO', '5F', 4157589878, 11); 
+
+
+/*
+****************
+Insert into employee
+****************
+*/ 
+
+INSERT INTO EMPLOYEE
+VALUES (11, 'Jeff', 'Bezos', TO_DATE('1964-1-12','yyyy/mm/dd'),TO_DATE('2001-06-12', 'yyyy/mm/dd'), null, 5); 
+
+INSERT INTO EMPLOYEE
+VALUES (1, 'Schofield', 'Aidan', TO_DATE('1983-12-15','yyyy/mm/dd'), TO_DATE('2020-12-20','yyyy/mm/dd'), 11, 1); 
+
+INSERT INTO EMPLOYEE
+VALUES (2, 'Chavez', 'Rose', TO_DATE('1955-1-15','yyyy/mm/dd'), TO_DATE('2018-12-20','yyyy/mm/dd'), 1, 1);
+
+INSERT INTO EMPLOYEE
+VALUES (3, 'Corrigan', 'Avril', TO_DATE('1965-1-15','yyyy/mm/dd'), TO_DATE('2015-12-20','yyyy/mm/dd'), 11, 2);
+
+INSERT INTO EMPLOYEE
+VALUES (4, 'Trevino', 'Ria', TO_DATE('1975-1-15','yyyy/mm/dd'), TO_DATE('2017-12-20','yyyy/mm/dd'), 3, 2);
+
+INSERT INTO EMPLOYEE
+VALUES (5, 'Gunn', 'Hayden', TO_DATE('1985-1-15','yyyy/mm/dd'), TO_DATE('2013-12-20','yyyy/mm/dd'), 3, 2);
+
+INSERT INTO EMPLOYEE
+VALUES (6, 'Martin', 'Newman', TO_DATE('1983-05-04', 'yyyy/mm/dd'), TO_DATE('2015-08-21', 'yyyy/mm/dd'),11, 3); 
+
+INSERT INTO EMPLOYEE
+VALUES (7, 'Tom', 'Gordan', TO_DATE('1993-03-21', 'yyyy/mm/dd'), TO_DATE('2017-05-21', 'yyyy/mm/dd'),6, 3); 
+
+INSERT INTO EMPLOYEE
+VALUES (8, 'Jim', 'Blue', TO_DATE('1996-1-08', 'yyyy/mm/dd'), TO_DATE('2021-05-09', 'yyyy/mm/dd'),11, 4); 
+
+INSERT INTO EMPLOYEE
+VALUES (9, 'Harry', 'Smith', TO_DATE('1987-10-19', 'yyyy/mm/dd'), TO_DATE('2015-09-17', 'yyyy/mm/dd'),8, 4); 
+
+INSERT INTO EMPLOYEE
+VALUES (10, 'Elon', 'Musk', TO_DATE('1988-11-20', 'yyyy/mm/dd'), TO_DATE('2017-05-17', 'yyyy/mm/dd'),8, 4); 
+
+
+
+
+
+
+
+
+create table TRAINING (
+    Train_Num number not null constraint training_pk primary key,
+    Code number not null
+	CONSTRAINT training_skills_FK REFERENCES SKILL (code),
+    Emp_Num number not null
+	CONSTRAINT training_employee_FK REFERENCES EMPLOYEE (emp_num),
+    Name varchar2(50) not null,
+    Date_Acquired date not null,
+    Comments varchar2(200)
+);
+
+INSERT INTO TRAINING 
+VALUES (1, 1, 10, 'Database Trianing', TO_DATE('2017-12-10', 'yyyy/mm/dd'), 'GOOD');
+
+INSERT INTO TRAINING 
+VALUES (2, 2, 9, 'Operating System Trianing', TO_DATE('2015-10-12', 'yyyy/mm/dd'), 'VERY GOOD');
+
+INSERT INTO TRAINING 
+VALUES (3, 3, 8, 'Scrum Management', TO_DATE('2021-11-15', 'yyyy/mm/dd'), 'EXCELLENT');
+
+INSERT INTO TRAINING 
+VALUES (4, 4, 8, 'Project Management Tools', TO_DATE('2021-06-13', 'yyyy/mm/dd'), 'VERY VERY GOOD');
+
+INSERT INTO TRAINING 
+VALUES (5, 4, 8, 'Project Management Tools', TO_DATE('2021-11-14', 'yyyy/mm/dd'), 'VERY VERY VERY GOOD');
+
+INSERT INTO TRAINING
+VALUES (6, 6, 9, 'Object Oriented Programming CMU', TO_DATE('2016-05-03','yyyy/mm/dd'), 'Good Performance in Course'); 
+
+INSERT INTO TRAINING
+VALUES (7, 7, 3, 'Data Analysis Python CMU', TO_DATE('2018-07-24','yyyy/mm/dd'), 'Average Performance'); 
+
+INSERT INTO TRAINING
+VALUES (8, 8, 9, 'Software Development C++ CMU', TO_DATE('2015-10-05','yyyy/mm/dd'), 'Proficient'); 
+
+INSERT INTO TRAINING
+VALUES (9, 9,1 , 'Organization Design CMU', TO_DATE('2021-05-05','yyyy/mm/dd'), 'Proficient'); 
+
+INSERT INTO TRAINING
+VALUES (10, 7, 4, 'Machine Learning Using Python', TO_DATE('2018-12-15','yyyy/mm/dd'), 'Advanced'); 
+
+INSERT INTO TRAINING
+VALUES (11, 7, 5, 'Machine Learning Using Python', TO_DATE('2018-12-15','yyyy/mm/dd'), 'Advanced'); 
+
+INSERT INTO TRAINING
+VALUES (12, 10, 6, 'Corporate Finance', TO_DATE('2015-09-15','yyyy/mm/dd'), 'Advanced'); 
+
+INSERT INTO TRAINING
+VALUES (13, 10, 7, 'Corporate Finance', TO_DATE('2018-12-15','yyyy/mm/dd'), 'Advanced'); 
+
+INSERT INTO TRAINING 
+VALUES (14, 2, 9, 'Operating System Trianing', TO_DATE('2019-01-12', 'yyyy/mm/dd'), 'Proficient');
+
+INSERT INTO TRAINING
+VALUES (15, 7, 4, 'Machine Learning Using Python', TO_DATE('2020-12-15','yyyy/mm/dd'), 'Advanced'); 
+
+INSERT INTO TRAINING
+VALUES (16, 7, 5, 'Machine Learning Using Python', TO_DATE('2020-12-15','yyyy/mm/dd'), 'Advanced'); 
+
+
+/*
+Additonal Constraint Added: Zipcode must be length 5. 
+*/
+
+create table CLIENT (
+    Client_ID number not null constraint client_pk primary key, 
+    Name varchar2(30) not null,
+    Street varchar2(20) not null,
+    City varchar2(20) not null,
+    State varchar2(2) not null,
+    Zip_Code varchar2(5) not null,
+    Industry varchar2(20) not null,
+    Web_Address varchar2(50) unique,
+    Phone number not null unique,
+    Contact_Lname varchar2(20) not null,
+    Contact_Fname varchar2(20) not null, 
+    CONSTRAINT zipcode_ck CHECK (LENGTH(Zip_Code) = 5)
+)
+; 
+
+INSERT INTO CLIENT
+VALUES (1, 'Meta', '456 S Aiken', 'San Francisco', 'CA', 56744, 'Internet', 'https://facebook.com', '6134456733', 'Mark', 'Zuker'); 
+
+INSERT INTO CLIENT
+VALUES (2, 'Two Sigma', '454 Bass', 'New York City', 'NY', 51366, 'Finance', 'https://twosigma.com', '7894455433', 'Andrew', 'Cregg'); 
+
+INSERT INTO CLIENT
+VALUES (3, 'Ford', '3626 5th Ave', 'New York', 'NY', 10001, 'Automobile', 'https://ford.com', 4356468893, 'Martin', 'King'); 
+
+INSERT INTO CLIENT
+VALUES (4, 'Cheveron', '4754 Spring Road', 'Huston', 'TX', 26743, 'Gasoline', 'https://cheveron.com', 7372837473, 'Nick', 'Nilon'); 
+
+
+create table PROJECT (
+    Proj_Number number not null constraint project_pk primary key,
+    Name varchar2(30) not null unique,
+    Start_Date date default SYSDATE not null, 
+    Total_Cost number default NULL,
+    Dept_Code number not null
+	CONSTRAINT project_department_FK REFERENCES department (dept_code),
+    Client_ID number not null
+	CONSTRAINT project_client_FK REFERENCES client (client_id),
+    Code number not null
+	CONSTRAINT project_skill_FK REFERENCES SKILL (code)
+);
+
+INSERT INTO PROJECT
+VALUES (1, 'Website Development', TO_DATE('2020-04-05','yyyy/mm/dd'), 50000, 4, 1, 7); 
+
+INSERT INTO PROJECT
+VALUES (2, 'Develop New Market', TO_DATE('2021-03-05','yyyy/mm/dd'), 10000, 2, 2, 4); 
+
+INSERT INTO PROJECT
+VALUES (3, 'Ford Sales Predicting', TO_DATE('2020-03-01', 'yyyy/mm/dd'), 30000, 4, 3, 1);
+
+INSERT INTO PROJECT
+VALUES (4, 'Ford Business Development', TO_DATE('2020-03-01', 'yyyy/mm/dd'), 60000, 2, 3, 9); 
+
+
+
+create table ASSIGNMENT (
+    Assign_Num number not null constraint assignment_pk primary key,
+    Proj_Number number not null
+	CONSTRAINT assignment_project_FK REFERENCES PROJECT (proj_number),
+    Emp_Num number not null
+	CONSTRAINT assignment_employee_FK REFERENCES employee (emp_num),
+    Date_Assigned date default SYSDATE not null,
+    Date_Ended date default NULL,
+    Hours_Used number default NULL, 
+    CONSTRAINT date_ck CHECK (Date_Ended > Date_Assigned) 
+);
+
+INSERT INTO ASSIGNMENT
+VALUES (1, 1, 8, TO_DATE('2020-04-05', 'yyyy/mm/dd'), TO_DATE('2020-4-30', 'yyyy/mm/dd'), 160); 
+
+INSERT INTO ASSIGNMENT
+VALUES (2, 1, 8, TO_DATE('2020-06-01', 'yyyy/mm/dd'), NULL , 160); 
+
+INSERT INTO ASSIGNMENT
+VALUES (3, 2, 3, TO_DATE('2021-03-05', 'yyyy/mm/dd'), TO_DATE('2021-3-31', 'yyyy/mm/dd'), 80); 
+
+INSERT INTO ASSIGNMENT
+VALUES (4, 2, 3, TO_DATE('2021-04-05', 'yyyy/mm/dd'), TO_DATE('2021-04-30', 'yyyy/mm/dd'), 80); 
+
+INSERT INTO ASSIGNMENT
+VALUES (5, 3, 9, TO_DATE('2020-03-01', 'yyyy/mm/dd'), TO_DATE('2020-03-31', 'yyyy/mm/dd'), 160); 
+
+INSERT INTO assignment
+VALUES (6,3,10,TO_DATE('2020-03-01','yyyy/mm/dd'),TO_DATE('2020-03-31','yyyy/mm/dd'),160);
+
+INSERT INTO ASSIGNMENT
+VALUES (7, 3, 10, TO_DATE('2020-04-01', 'yyyy/mm/dd'),null, 100); 
+
+INSERT INTO ASSIGNMENT
+VALUES (8, 4, 4, TO_DATE('2020-03-01', 'yyyy/mm/dd'), TO_DATE('2020-03-31', 'yyyy/mm/dd'), 160); 
+
+INSERT INTO ASSIGNMENT
+VALUES (9, 4, 5, TO_DATE('2020-03-01', 'yyyy/mm/dd'), TO_DATE('2020-03-31', 'yyyy/mm/dd'), 160); 
+
+INSERT INTO ASSIGNMENT
+VALUES (10, 4, 5, TO_DATE('2020-07-01', 'yyyy/mm/dd'), TO_DATE('2020-07-31', 'yyyy/mm/dd'), 160); 
+
+
+
+
+SELECT * FROM skill; 
+SELECT * FROM training; 
+SELECT * FROM department; 
+SELECT * FROM employee; 
+SELECT * FROM client; 
+SELECT * FROM project; 
+SELECT * FROM assignment; 
+
+
+/*
+Part 2
+*/
+
+/*
+1
+*/
+SELECT e.emp_num || ' ' || lname || ' ' || fname AS Employee, Name, COUNT(Train_Num) AS Num_Times, MIN(date_acquired) AS Earliest_Date, TRUNC(MONTHS_BETWEEN(sysdate, MAX(date_acquired)),0) AS Months
+FROM employee e left join training t ON e.emp_num = t.emp_num
+GROUP BY e.emp_num, lname, fname, name
+ORDER BY e.emp_num;
+
+/*
+2
+*/
+SELECT level, 
+LPAD(' ', 3*(level-1)) || ' ' || e.emp_num ||' '|| e.lname || ' '|| e.fname AS Employee, d.name AS department
+FROM employee e FULL OUTER JOIN department d ON e.dept_code = d.dept_code
+START WITH emp_num = 11
+CONNECT BY PRIOR emp_num = super_id;
+
+
+/*
+3
+*/
+SELECT p.name, p.start_date, TO_CHAR(EXTRACT(MONTH FROM a.date_assigned)) AS Month, COUNT(a.EMP_NUM) AS NUM_EMP, SUM(a.hours_used) AS hours
+FROM assignment a FULL OUTER JOIN project p ON a.proj_number = p.proj_number
+WHERE p.name in (SELECT project.name 
+		FROM assignment FULL OUTER JOIN project ON assignment.proj_number = project.proj_number
+		WHERE assignment.date_ended is NULL)
+GROUP BY EXTRACT(MONTH FROM date_assigned), name, start_date
+UNION ALL
+SELECT p.name || ' Total', p.start_date, '---', COUNT(a.EMP_NUM) AS NUM_EMP, SUM(a.hours_used) AS hours
+FROM assignment a FULL OUTER JOIN project p ON a.proj_number = p.proj_number
+WHERE p.name in (SELECT project.name 
+		FROM assignment FULL OUTER JOIN project ON assignment.proj_number = project.proj_number
+		WHERE assignment.date_ended is NULL)
+GROUP BY name, start_date
+ORDER BY name, month;
+
+SELECT p.name, p.start_date, TO_CHAR(EXTRACT(MONTH FROM a.date_assigned)) AS Month, COUNT(a.EMP_NUM) AS NUM_EMP, SUM(a.hours_used) AS hours
+FROM assignment a FULL OUTER JOIN project p ON a.proj_number = p.proj_number
+WHERE p.name in (SELECT project.name 
+		FROM assignment FULL OUTER JOIN project ON assignment.proj_number = project.proj_number
+		WHERE assignment.date_ended is NULL)
+GROUP BY ROLLUP (EXTRACT(MONTH FROM date_assigned)), name, start_date
+ORDER BY name, month;
+
+
+
+/*
+4
+*/
+
+ALTER TABLE employee
+ADD bonus_AMT CHAR(10);
+
+UPDATE employee
+	SET bonus_amt = (
+		CASE when ( (SELECT assignment.emp_num
+			     FROM (SELECT emp_num,proj_number FROM assignment JOIN project USING (proj_number)
+                                            		      WHERE start_date < TO_DATE('2021-03-31','yyyy/mm/dd')
+                                            	              AND start_date > TO_DATE('2021-01-01','yyyy/mm/dd'))
+     			     	  JOIN assignment USING (proj_number)
+			     GROUP BY assignment.emp_num
+			     HAVING SUM(hours_used) > 150) 
+
+			     = employee.emp_num   )
+
+		      then TO_CHAR(200, '$999')
+		else TO_CHAR(0,'$999')
+		end); 
+
+SELECT * FROM employee;
+
+/*
+5
+*/
+
+select emp_num, fname, lname, hire_date, name, date_acquired, date_acquired - hire_date as days, count(distinct proj_number) as projects
+from employee left join training using(emp_num)
+     left join assignment using (emp_num)
+where to_char(Hire_Date, 'MM') between 4 and 6 
+        and to_char(Hire_Date, 'yyyy')=2021
+group by emp_num, fname, lname, hire_date, name, date_acquired, date_acquired, hire_date;
+
+
+
+
+/*
+6
+*/ 
+
+
+SELECT name, start_date, project_status
+FROM
+(
+SELECT proj_number, name, start_date, continue_status, CASE
+		WHEN date_ended is NULL
+		THEN 'on-going'
+       		ELSE'completed' 
+	  	END Project_Status
+FROM 
+(
+SELECT proj_number,name, start_date, date_assigned, date_ended, CASE 
+			WHEN prev_date is not null
+			THEN (CASE
+			      WHEN (date_assigned - prev_date) > 45
+			      THEN 'discontinued'
+			      ELSE 'continued'
+			      END)
+			ELSE 'start'
+			END continue_status
+FROM
+(
+SELECT proj_number, name, start_date, date_assigned, date_ended, 
+	LAG(date_assigned, 1) OVER (PARTITION BY proj_number ORDER BY date_assigned) AS prev_date
+	FROM assignment JOIN project USING (proj_number)
+	GROUP BY proj_number, name, start_date,date_assigned, date_ended
+)))
+WHERE continue_status = 'discontinued'; 
+
+
+
+
+/*
+7
+*/
+
+/*
+with qt as(select '1' q from   dual
+      	   union all
+     	   select '2' from dual
+      	   union all
+      	   select '3' from dual
+      	   union all
+      	   select '4' from dual)    
+select q AS quarter, p.proj_number,COUNT(DISTINCT p.proj_number) AS NUM_PROJ,COUNT(emp_num) AS NUM_EMP, SUM(hours_used)/COUNT(DISTINCT p.proj_number) AS AVG_HOURS
+from ( (project p JOIN assignment a ON p.proj_number = a.proj_number) 
+     CROSS JOIN qt) 
+WHERE EXTRACT(YEAR FROM start_date) = EXTRACT(YEAR FROM sysdate)
+GROUP BY q, p.proj_number,start_date
+HAVING q = TO_CHAT(start_date, 'Q')
+ORDER BY q; 
+*/
+
+
+
+with qt as(select '1' q from   dual
+      	   union all
+     	   select '2' from dual
+      	   union all
+      	   select '3' from dual
+      	   union all
+      	   select '4' from dual)    
+select q AS quarter, TO_CHAR(p.proj_number) AS proj_number,COUNT(DISTINCT p.proj_number) AS NUM_PROJ,COUNT(DISTINCT emp_num) AS NUM_EMP, SUM(hours_used)/COUNT(DISTINCT p.proj_number) AS AVG_HOURS
+from ( (project p JOIN assignment a ON p.proj_number = a.proj_number) 
+     CROSS JOIN qt) 
+WHERE EXTRACT(YEAR FROM start_date) = EXTRACT(YEAR FROM sysdate)
+GROUP BY q, p.proj_number,start_date
+HAVING q = TO_CHAR(start_date, 'Q')
+UNION ALL 
+select n.quarter, n.proj_number,n.NUM_PROJ,n.NUM_EMP, n.AVG_HOURS 
+from
+( with qt as(select '1' q from   dual
+      	   union all
+     	   select '2' from dual
+      	   union all
+      	   select '3' from dual
+      	   union all
+      	   select '4' from dual) 
+select q as QUARTER, '----' AS proj_number,0 as num_proj,0 AS num_emp,0 as avg_hours
+from ( (project p JOIN assignment a ON p.proj_number = a.proj_number) 
+     CROSS JOIN qt) 
+WHERE EXTRACT(YEAR FROM start_date) = EXTRACT(YEAR FROM sysdate)
+GROUP BY q, p.proj_number,start_date
+HAVING q != TO_CHAR(start_date, 'Q')
+ORDER by q) n
+ORDER BY quarter;
+
+/*
+8
+*/
+
+SELECT id, employee_name
+    , MAX(database) AS database
+     , To_char(MAX(latest_date_1)) AS latest_date_assigned
+     , MAX(Op_Sys) as op_sys
+     , TO_CHAR(MAX(Latest_Date_2)) as latest_date_assigned 
+     , MAX(Scrum_Mgmt) as scrum_mgmt
+      ,TO_CHAR(MAX(Latest_Date_3)) as latest_date_assigned 
+     , MAX(PM_Tools) as pm_tools
+     ,TO_CHAR(MAX(Latest_Date_4)) as latest_date_assigned 
+     ,MAX(Communication) as communication
+    , TO_CHAR(MAX(Latest_Date_5)) as latest_date_assigned 
+    ,MAX(Java) as java
+     ,TO_CHAR(MAX(Latest_Date_6)) as latest_date_assigned 
+     , MAX(Python) as python 
+     , TO_CHAR(MAX(Latest_Date_7)) as latest_date_assigned 
+     , MAX(C_Plus_Plus) as c_plus_plus
+     , TO_CHAR(MAX(Latest_date_8)) as latest_date_assigned 
+     ,MAX(Org_Behavior) as org_behavior
+     , TO_CHAR(MAX(Latest_Date_9)) as latest_date_assigned 
+     ,MAX(Corp_Acct) as corp_acct
+     , TO_CHAR(MAX(Latest_Date_10)) as latest_date_assigned
+     , TO_CHAR(NVL(num_skills,0)) as num_skills
+FROM 
+(
+(select decode(to_char(emp_num),NULL,'Number of Trainings: ',to_char(emp_num)) as id, lname|| ' ' || fname AS Employee_Name, code,
+            SUM(DECODE(code,1,1,0)) AS Database,
+            CASE
+        WHEN code = 1
+        THEN MAX(Date_Acquired)
+        END Latest_Date_1,
+            SUM(DECODE(code,2,1,0)) AS Op_Sys, 
+            CASE
+        WHEN code = 2
+        THEN MAX(Date_Acquired)
+        END Latest_Date_2,
+            SUM(DECODE(code,3,1,0)) AS Scrum_Mgmt, 
+            CASE
+        WHEN code = 3
+        THEN MAX(Date_Acquired)
+        END Latest_Date_3,
+            SUM(DECODE(code,4,1,0)) AS PM_Tools,
+            CASE
+        WHEN code = 4
+        THEN MAX(Date_Acquired)
+        END Latest_Date_4,
+            SUM(DECODE(code,5,1,0)) AS Communication, 
+            CASE
+        WHEN code = 5
+        THEN MAX(Date_Acquired)
+        END Latest_Date_5,
+            SUM(DECODE(code,6,1,0)) AS Java, 
+            CASE
+        WHEN code = 6
+        THEN MAX(Date_Acquired)
+        END Latest_Date_6,
+            SUM(DECODE(code,7,1,0)) AS Python, 
+            CASE
+        WHEN code = 7
+        THEN MAX(Date_Acquired)
+        END Latest_Date_7,
+            SUM(DECODE(code,8,1,0)) AS C_Plus_Plus, 
+            CASE
+        WHEN code = 8
+        THEN MAX(Date_Acquired)
+        END Latest_date_8,
+            SUM(DECODE(code,9,1,0)) AS Org_Behavior, 
+            CASE
+        WHEN code = 9
+        THEN MAX(Date_Acquired)
+        END Latest_Date_9,
+            SUM(DECODE(code,10,1,0)) AS Corp_Acct, 
+            CASE
+        WHEN code = 10
+        THEN MAX(Date_Acquired)
+        END Latest_Date_10
+FROM training LEFT JOIN employee USING (emp_num)
+GROUP BY  grouping sets(emp_num,lname,fname,()), code
+ORDER BY emp_num) a
+JOIN training ON a.id = training.emp_num)
+JOIN (select to_char(emp_num) as id, count(distinct code) as num_skills
+	from training
+	group by emp_num) using (id)
+GROUP BY id,employee_name,num_skills
+ORDER BY id; 
+
+
+
+UNION ALL
+(select '-----', 'Number of skills: ', database, 
+				      '-----',
+				      op_sys, 
+				      '-----',
+				      Scrum_Mgmt, 
+				      '-----',
+				      pm_tools, 
+				      '-----',
+				       communication, 
+				      '-----',
+				       java, 
+				      '-----',
+				       python,
+				      '-----',
+				      C_Plus_Plus,
+				      '-----',
+				      Org_Behavior,
+				      '-----',
+				      Corp_Acct, 
+				      '-----',
+				      '-----'
+from
+(select  code, CASE 
+		when code = 1
+		then count(train_num)
+		end AS database,
+	      CASE 
+		when code = 2
+		then count(train_num)
+		end as op_sys, 
+	      CASE 
+		when code = 3
+		then count(train_num)
+		end as Scrum_Mgmt, 
+	      CASE 
+		when code = 4
+		then count(train_num)
+		end as pm_tools, 
+	      CASE 
+		 when code = 5
+		then count(train_num)
+		end as communication, 
+	      CASE 
+		when code = 6
+		then count(train_num)
+		end as java, 
+	      CASE 
+		when code = 7
+		then count(train_num)
+		end as python, 
+	      CASE 
+		when code = 8
+		then count(train_num)
+		end as C_Plus_Plus, 
+	      CASE 
+		when code = 9
+		then count(train_num)
+		end as Org_Behavior, 
+	      CASE 
+		 when code = 10
+		then count(train_num)
+		end as Corp_Acct
+from training
+group by code)
+); 
+
+
+
+/*
+9
+*/
+
+
+select Dense_Rank() over(order by NUMS_OF_TRAINING desc) as ranks, dept_code as DEPT_ID, dept_name, code as SKILL_ID, skill_name, NUMS_OF_TRAINING
+from 
+(select dept_code, d.name as dept_name, code, s.name as skill_name, count(distinct train_num) as NUMS_OF_TRAINING
+from department d left join employee e using(dept_code)
+    left join training t using(emp_num)
+    left join skill s using(code)
+group by dept_code, d.name, code, s.name)
+
+
+/*
+10
+*/
+
+
+SELECT proj_number, name
+FROM(SELECT proj_number, name,assign_num, date_assigned, date_ended, 
+		ROW_NUMBER() over (ORDER BY (date_ended - date_assigned) DESC) AS rank
+     FROM assignment RIGHT JOIN (SELECT proj_number, name
+		                 FROM assignment a JOIN project p USING (proj_number)
+		      	         GROUP BY proj_number, name
+ 		      	         HAVING COUNT(assign_num) >= 5) USING (proj_number)
+     GROUP BY proj_number, name,assign_num, date_assigned, date_ended, assign_num)
+WHERE rank <= 3
+GROUP BY proj_number, name
+HAVING SUM(date_ended - date_assigned) >= 60; 
+
+
+
+
+
+
+/*
+11
+*/
+
+SELECT * 
+FROM (SELECT e.emp_num || ' '|| e.lname||' '|| e.fname AS employee, e.hire_date, department.dept_code, e2.emp_num AS supervisee, 
+       	     DENSE_RANK() OVER (ORDER BY (sysdate - e.hire_date) DESC) AS rank   
+      FROM employee e FULL OUTER JOIN department ON e.emp_num = department.manager_id
+		      JOIN employee e2 ON e.emp_num = e2.super_id
+      GROUP BY e.emp_num,e.lname,e.fname,e.hire_date,department.dept_code,e2.emp_num, e2.super_id
+      HAVING e.emp_num = e2.super_id)
+WHERE rank <= 4;
+
+select * from 
+(select e.emp_num, e.lname, e.fname, e.hire_Date, e.dob, d.name as manage_dept_name, count(distinct s.emp_num) as num_emps 
+from employee e left join department d on e.emp_num = d.manager_ID
+                left join (Select emp_num, super_id, lname, fname from employee) s on e.emp_num = s.super_id
+group by e.emp_num, e.lname, e.fname, e.hire_Date, e.dob, d.name)
+order by Hire_date
+FETCH FIRST 4 ROWS ONLY;
+
+
+/*
+12
+*/
+
+
+SELECT Type_of_client, COUNT(CLIENT_ID) AS CLIENT_NUM, COUNT(proj_number) AS NUM_PROJ
+FROM CLIENT JOIN project p USING (client_id)
+	    JOIN (SELECT CLIENT_ID, CASE
+				WHEN SUBSTR(WEB_ADDRESS,INSTR(WEB_ADDRESS,'.')+1,3) = 'org'
+					THEN 'Non-for-profit organisation'
+				WHEN SUBSTR(WEB_ADDRESS,INSTR(WEB_ADDRESS,'.')+1,3) = 'edu'
+					THEN 'Education institution'
+				WHEN SUBSTR(WEB_ADDRESS,INSTR(WEB_ADDRESS,'.')+1,3) = 'com'
+					THEN 'For-profit company'
+				WHEN SUBSTR(WEB_ADDRESS,INSTR(WEB_ADDRESS,'.')+1,3) = 'gov'
+					THEN 'Government agency'	
+				WHEN SUBSTR(WEB_ADDRESS,INSTR(WEB_ADDRESS,'.')+1,3) IS NULL
+					THEN 'Not Available'
+				ELSE 'Other'
+				END Type_of_client
+				FROM CLIENT) USING (CLIENT_ID)
+GROUP BY type_of_client; 
+
+
+
+/*
+13
+*/
+
+
+SELECT distinct Lname || ', ' || Fname as Name, d.name Department, p.name Project_Name, MAX(DATE_ASSIGNED)
+from assignment LEFT JOIN employee using (EMP_NUM)
+	LEFT JOIN department d using (DEPT_CODE)
+	LEFT JOIN project p using (DEPT_CODE)
+where DATE_ASSIGNED > '01-MAR-20'
+group by Lname, Fname, d.name, p.name
+order by d.name, Name; 
+
+select TO_DATE(to_char(sysdate, 'yyyy')|| '0731', 'yyyymmdd') from dual; 
+
+
+
+/*
+14
+*/
+SELECT category, COUNT(train_num) AS Num_Train, COUNT(DISTINCT proj_number) AS NUM_Proj
+FROM skill LEFT JOIN training USING (code)
+           LEFT JOIN project USING (code)
+GROUP BY category
+UNION ALL 
+SELECT ' Grand Total:', SUM(COUNT(train_num)), SUM(COUNT(DISTINCT proj_number))
+FROM skill LEFT JOIN training USING (code)
+           LEFT JOIN project USING (code)
+GROUP BY category; 
+
+
+/*
+15
+*/
+
+COLUMN TABLE_NAME FORMAT A13
+COLUMN COLUMN_NAME FORMAT A14
+COLUMN CONTRAINT_NAME FORMAT A25
+COLUMN CONS_TYPE FORMAT A9
+COLUMN SEARCH_CONDITION FORMAT A35
+COLUMN R_TABLE_NAME FORMAT A13
+COLUMN R_COLUMN_NAME FORMAT A14
+
+BREAK ON TABLE_NAME
+
+SELECT col.TABLE_NAME, col.COLUMN_NAME, con.CONSTRAINT_NAME, SUBSTR(con.CONSTRAINT_NAME, -2, 2) cons_type, fk.search_condition,
+       pk.TABLE_NAME AS R_TABLE_NAME, pk.column_name AS R_COLUMN_NAME
+FROM (user_tab_columns col LEFT OUTER JOIN user_cons_columns con ON col.table_name = con.table_name AND col.column_name = con.column_name
+     LEFT OUTER JOIN user_constraints fk ON fk.CONSTRAINT_NAME = CON.CONSTRAINT_NAME)
+     LEFT OUTER JOIN user_cons_columns pk ON fk.R_constraint_name = pk.constraint_name
+ORDER BY col.table_name, col.column_id; 
+
+
+
+
+
+
+				
+
+
+
+
